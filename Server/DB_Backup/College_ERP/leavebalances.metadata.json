@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_"}],"uuid":"dee2e836bcf940ab8fcb1cfcfef2f191","collectionName":"leavebalances","type":"collection"}
