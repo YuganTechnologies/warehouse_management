@@ -151,6 +151,10 @@ export const AuthProvider = (props) => {
     });
   };
 
+  const forgot = async (email ) => {
+    throw new Error('Enter email id to reset your password');
+  };
+
   const signUp = async (email, name, password) => {
     throw new Error('Sign up is not implemented');
   };
@@ -166,6 +170,7 @@ export const AuthProvider = (props) => {
       value={{
         ...state,
         skip,
+        forgot,
         signIn,
         signUp,
         signOut

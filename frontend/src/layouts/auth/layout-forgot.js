@@ -2,15 +2,13 @@ import PropTypes from "prop-types";
 import NextLink from "next/link";
 import { Box, Typography, Unstable_Grid2 as Grid } from "@mui/material";
 import { Logo } from "src/components/logo";
-// import Lottie from 'lottie-react';
-import Lottie from 'lottie-react';
-import animationData from '../../../public/assets/auth-animation.json';
+import Lottie from "lottie-react";
+import animationData from "../../../public/assets/auth-forgot.json";
 
 // TODO: Change subtitle text
 
 export const Layout = (props) => {
   const { children } = props;
-  console.log(props);
   return (
     <Box
       component="main"
@@ -37,7 +35,7 @@ export const Layout = (props) => {
               p: 3,
               position: "fixed",
               top: 0,
-              width: "100%",
+              width: "70%",
             }}
           >
             <Box
@@ -63,21 +61,10 @@ export const Layout = (props) => {
             alignItems: "center",
             display: "flex",
             justifyContent: "center",
-            '& img' :{
-              maxWidth: '90%'
-            }
+            "& img": {
+              maxWidth: "90%",
+            },
           }}
-
-          // sx={{
-          //   alignItems: 'center',
-          //   background: 'radial-gradient(50% 50% at 50% 50%, #122647 0%, #090E23 100%)',
-          //   color: 'white',
-          //   display: 'flex',
-          //   justifyContent: 'center',
-          //   '& img': {
-          //     maxWidth: '100%'
-          //   }
-          // }}
         >
           <Box sx={{ p: 3 }}>
             <Typography
@@ -98,8 +85,7 @@ export const Layout = (props) => {
             <Typography align="center" sx={{ mb: 3 }} variant="subtitle1">
               A professional kit that comes with ready-to-use product &amp; components.
             </Typography>
-            {/* <img alt="" src="/assets/10-01.png" /> */}
-            <Lottie animationData={animationData} />;
+            <Lottie style={{ width: "80%", marginLeft: "15%" }} animationData={animationData} />;
           </Box>
         </Grid>
       </Grid>
