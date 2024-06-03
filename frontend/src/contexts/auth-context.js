@@ -1,16 +1,16 @@
-import { createContext, useContext, useEffect, useReducer, useRef } from 'react';
-import PropTypes from 'prop-types';
+import { createContext, useContext, useEffect, useReducer, useRef, useState } from "react";
+import PropTypes from "prop-types";
 
 const HANDLERS = {
-  INITIALIZE: 'INITIALIZE',
-  SIGN_IN: 'SIGN_IN',
-  SIGN_OUT: 'SIGN_OUT'
+  INITIALIZE: "INITIALIZE",
+  SIGN_IN: "SIGN_IN",
+  SIGN_OUT: "SIGN_OUT",
 };
 
 const initialState = {
   isAuthenticated: false,
   isLoading: true,
-  user: null
+  user: null,
 };
 
 const handlers = {
@@ -19,18 +19,9 @@ const handlers = {
 
     return {
       ...state,
-      ...(
-        // if payload (user) is provided, then is authenticated
-        user
-          ? ({
-            isAuthenticated: true,
-            isLoading: false,
-            user
-          })
-          : ({
-            isLoading: false
-          })
-      )
+      isAuthenticated: !!user,
+      isLoading: false,
+      user: user || null,
     };
   },
   [HANDLERS.SIGN_IN]: (state, action) => {
@@ -39,141 +30,142 @@ const handlers = {
     return {
       ...state,
       isAuthenticated: true,
-      user
+      user,
     };
   },
   [HANDLERS.SIGN_OUT]: (state) => {
     return {
       ...state,
       isAuthenticated: false,
-      user: null
+      user: null,
     };
-  }
+  },
 };
 
-const reducer = (state, action) => (
-  handlers[action.type] ? handlers[action.type](state, action) : state
-);
+const reducer = (state, action) => handlers[action.type] ? handlers[action.type](state, action) : state;
 
-// The role of this context is to propagate authentication state through the App tree.
+export const AuthContext = createContext();
 
-export const AuthContext = createContext({ undefined });
-
-export const AuthProvider = (props) => {
-  const { children } = props;
+export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const initialized = useRef(false);
+  const [userData, setUserData] = useState(null);
+  let userId = useRef(1);
 
   const initialize = async () => {
-    // Prevent from calling twice in development mode with React.StrictMode enabled
     if (initialized.current) {
       return;
     }
 
     initialized.current = true;
 
-    let isAuthenticated = false;
-
-    try {
-      isAuthenticated = window.sessionStorage.getItem('authenticated') === 'true';
-    } catch (err) {
-      console.error(err);
-    }
+    const isAuthenticated = window.sessionStorage.getItem("authenticated") === "true";
 
     if (isAuthenticated) {
       const user = {
-        id: '5e86809283e28b96d2d38537',
-        avatar: '/assets/avatars/avatar-anika-visser.png',
-        name: 'Anika Visser',
-        email: 'anika.visser@devias.io'
+        id: "5e86809283e28b96d2d38537",
+        avatar: "/assets/avatars/avatar-anika-visser.png",
+        name: "Anika Visser",
+        email: "anika.visser@devias.io",
       };
 
-      dispatch({
-        type: HANDLERS.INITIALIZE,
-        payload: user
-      });
+      dispatch({ type: HANDLERS.INITIALIZE, payload: user });
     } else {
-      dispatch({
-        type: HANDLERS.INITIALIZE
-      });
+      dispatch({ type: HANDLERS.INITIALIZE });
     }
   };
 
-  useEffect(
-    () => {
-      initialize();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
-
-  const skip = () => {
+  const fetchUserData = async () => {
     try {
-      window.sessionStorage.setItem('authenticated', 'true');
-    } catch (err) {
-      console.error(err);
+      const response = await fetch("http://localhost:8080/api/v1/Auth/LoginUser");
+      const data = await response.json();
+      setUserData(data);
+    } catch (error) {
+      setUserData(`An Error Happened: ${error}`);
     }
-
-    const user = {
-      id: '5e86809283e28b96d2d38537',
-      avatar: '/assets/avatars/avatar-anika-visser.png',
-      name: 'Anika Visser',
-      email: 'anika.visser@devias.io'
-    };
-
-    dispatch({
-      type: HANDLERS.SIGN_IN,
-      payload: user
-    });
   };
+
+  useEffect(() => {
+    fetchUserData();
+    initialize();
+  }, []);
 
   const signIn = async (email, password) => {
-    if (email !== 'demo@devias.io' || password !== 'Password123!') {
-      throw new Error('Please check your email and password');
+    if (email !== "sample@gmail.com" || password !== "1234567890") {
+      throw new Error("Please check your email and password");
     }
 
-    try {
-      window.sessionStorage.setItem('authenticated', 'true');
-    } catch (err) {
-      console.error(err);
-    }
+    window.sessionStorage.setItem("authenticated", "true");
 
     const user = {
-      id: '5e86809283e28b96d2d38537',
-      avatar: '/assets/avatars/avatar-anika-visser.png',
-      name: 'Anika Visser',
-      email: 'anika.visser@devias.io'
+      id: "5e86809283e28b96d2d38537",
+      avatar: "/assets/avatars/avatar-anika-visser.png",
+      name: "Anika Visser",
+      email: "anika.visser@devias.io",
     };
 
-    dispatch({
-      type: HANDLERS.SIGN_IN,
-      payload: user
-    });
+    dispatch({ type: HANDLERS.SIGN_IN, payload: user });
   };
 
-  const forgot = async (email ) => {
-    throw new Error('Enter email id to reset your password');
+  const forgot = async (email) => {
+    if (email !== "svinothkumar0301@gmail.com") {
+      throw new Error("Enter your registered email to reset your password");
+    }
+    return true;
   };
 
   const signUp = async (email, name, password) => {
-    throw new Error('Sign up is not implemented');
+    const userData = { id: userId.current, email, name, password };
+    
+    try {
+      const response = await fetch("http://localhost:8080/api/v1/Auth/RegisterUser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      userId.current += 1;
+      return result;
+    } catch (error) {
+      console.error("Sign up failed:", error);
+      throw error;
+    }
+  };
+
+  const otpValidation = async (otp) => {
+    if (otp.join("") !== "123456") {
+      throw new Error("Enter valid OTP");
+    }
+    return true;
+  };
+
+  const resetPassword = async (password, confirmPassword) => {
+    if (password !== confirmPassword) {
+      throw new Error("Password and confirm password must be the same");
+    }
+    // Implement password reset logic here
+    throw new Error("Reset password function is not implemented");
   };
 
   const signOut = () => {
-    dispatch({
-      type: HANDLERS.SIGN_OUT
-    });
+    dispatch({ type: HANDLERS.SIGN_OUT });
   };
 
   return (
     <AuthContext.Provider
       value={{
         ...state,
-        skip,
         forgot,
         signIn,
         signUp,
-        signOut
+        signOut,
+        otpValidation,
+        resetPassword,
       }}
     >
       {children}
@@ -182,9 +174,32 @@ export const AuthProvider = (props) => {
 };
 
 AuthProvider.propTypes = {
-  children: PropTypes.node
+  children: PropTypes.node.isRequired,
 };
 
 export const AuthConsumer = AuthContext.Consumer;
 
 export const useAuthContext = () => useContext(AuthContext);
+
+
+// Backup codes
+
+// const skip = () => {
+//   try {
+//     window.sessionStorage.setItem("authenticated", "true");
+//   } catch (err) {
+//     console.error(err);
+//   }
+
+//   const user = {
+//     id: "5e86809283e28b96d2d38537",
+//     avatar: "/assets/avatars/avatar-anika-visser.png",
+//     name: "Anika Visser",
+//     email: "anika.visser@devias.io",
+//   };
+
+//   dispatch({
+//     type: HANDLERS.SIGN_IN,
+//     payload: user,
+//   });
+// };

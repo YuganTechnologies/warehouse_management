@@ -1,33 +1,36 @@
-import { Layout as AuthLayout } from "src/layouts/auth/layout-forgot";
-import { Box, Button,Link, Stack, TextField, Typography } from "@mui/material";
+import { useCallback, useState } from "react";
 import Head from "next/head";
+import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { useAuth } from "src/hooks/use-auth";
+import { Layout as AuthLayout } from "src/layouts/auth/layout-resetpass";
 
 const Page = () => {
   const router = useRouter();
   const auth = useAuth();
-  var checkRouter;
-  const [method, setMethod] = useState("email");
+  const [method, setMethod] = useState("password");
 
   const formik = useFormik({
     initialValues: {
-      email: "",
+      password: "",
+      confirmpassword: "",
+      submit: null,
     },
     validationSchema: Yup.object({
-      email: Yup.string().email("Must be a valid email").max(255).required("Email is required"),
+      password: Yup.string()
+        .matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/, "Must be a valid password")
+        .max(255)
+        .required("Password is required"),
+      confirmpassword: Yup.string()
+        .oneOf([Yup.ref("password"), null], "Passwords must match")
+        .max(255)
+        .required("Confirm password is required"),
     }),
     onSubmit: async (values, helpers) => {
       try {
-        console.log("this value comes with forgot" , values.email);
-        checkRouter = await auth.forgot(values.email);
-        console.log(checkRouter);
-        if(checkRouter == true){
-          router.push("/auth/otpverfication");
-        }
+        await auth.resetpass(values.password, values.confirmpassword);
         // router.push("/");
       } catch (err) {
         helpers.setStatus({ success: false });
@@ -37,9 +40,7 @@ const Page = () => {
     },
   });
 
-  const handleMethodChange = useCallback((event, value) => {
-    setMethod(value);
-  }, []);
+  
 
   return (
     <>
@@ -64,32 +65,35 @@ const Page = () => {
           }}
         >
           <div>
-            {/* Input top heading */}
             <Stack spacing={1} sx={{ mb: 3 }}>
-              <Typography variant="h4">Forgot password</Typography>
+              <Typography variant="h4">Create Password</Typography>
               <Typography color="text.secondary" variant="body2">
-                You know the password? &nbsp;
-                <Link
-                  href="/auth/login"
-                  underline="hover"
-                  variant="subtitle2"
-                >
-                  Login
-                </Link>
+                Enter your new password to login
               </Typography>
             </Stack>
             <form noValidate onSubmit={formik.handleSubmit}>
               <Stack spacing={3}>
                 <TextField
-                  error={!!(formik.touched.email && formik.errors.email)}
+                  error={!!(formik.touched.password && formik.errors.password)}
                   fullWidth
-                  helperText={formik.touched.email && formik.errors.email}
-                  label="Email Address"
-                  name="email"
+                  helperText={formik.touched.password && formik.errors.password}
+                  label="Password"
+                  name="password"
                   onBlur={formik.handleBlur}
                   onChange={formik.handleChange}
-                  type="email"
-                  value={formik.values.email}
+                  type="password"
+                  value={formik.values.password}
+                />
+                <TextField
+                  error={!!(formik.touched.confirmpassword && formik.errors.confirmpassword)}
+                  fullWidth
+                  helperText={formik.touched.confirmpassword && formik.errors.confirmpassword}
+                  label="Confirm Password"
+                  name="confirmpassword"
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  type="password"
+                  value={formik.values.confirmpassword}
                 />
               </Stack>
               {formik.errors.submit && (
@@ -98,7 +102,7 @@ const Page = () => {
                 </Typography>
               )}
               <Button fullWidth size="large" sx={{ mt: 3 }} type="submit" variant="contained">
-                Continue
+                Reset Password
               </Button>
             </form>
           </div>

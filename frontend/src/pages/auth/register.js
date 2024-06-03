@@ -11,6 +11,7 @@ const Page = () => {
   const router = useRouter();
   const auth = useAuth();
   const formik = useFormik({
+    
     initialValues: {
       email: '',
       name: '',
@@ -35,7 +36,7 @@ const Page = () => {
     onSubmit: async (values, helpers) => {
       try {
         await auth.signUp(values.email, values.name, values.password);
-        router.push('/');
+        // router.push('/');
       } catch (err) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
