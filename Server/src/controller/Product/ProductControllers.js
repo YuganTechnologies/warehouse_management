@@ -3,6 +3,7 @@ const ProductModel = require("../../model/Product/ProductModel");
 const CreateService = require("../../services/product/CreateService");
 const UpdateService = require("../../services/product/UpdateService");
 const DeleteService = require("../../services/product/DeleteService");
+const GetAllProductsService = require("../../services/Product/GetAllProductsService");
 
 // Controller function for creating a new product
 const createProduct = async (req, res, next) => {
@@ -41,8 +42,20 @@ const deleteProduct = async (req, res, next) => {
 };
 
 
+// Controller function for getting all products
+const getAllProducts = async (req, res, next) => {
+  try {
+    // Call the GetAllService to get all products
+    const products = await GetAllProductsService(ProductModel);
+    res.status(200).json(products);
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createProduct,
   updateProduct,
   deleteProduct,
+  getAllProducts,
 };

@@ -13,4 +13,7 @@ ProductRoutes.put("/update/:productId", ProductControllers.updateProduct);
 // Route for deleting a product
 ProductRoutes.delete("/delete/:productId", ProductControllers.deleteProduct);
 
+// Route for getting all products
+ProductRoutes.get("/allProduct", ProductControllers.getAllProducts);
+
 module.exports = ProductRoutes;
