@@ -46,7 +46,7 @@ const Page = () => {
   }, []);
 
   const handleSkip = useCallback(() => {
-    auth.skip();
+    // auth.skip();
     router.push("/auth/forgot");
   }, [auth, router]);
 
