@@ -1,4 +1,4 @@
-// //Internal Lib Import
+// // Internal Lib Import
 // const app = require("./app");
 // const PORT = process.env.PORT || 8080;
 // app.listen(PORT, () => console.log(`Server listening on ${PORT}`));
@@ -129,7 +129,7 @@ app.post("/api/v1/Auth/RegisterUser", async (req, res) => {
 });
 
 // Route for fetching all users
-app.get("/api/v1/Auth/LoginUser", async (req, res) => {
+app.get("   ", async (req, res) => {
   try {
     const users = await Users.find();
     res.status(200).json(users);

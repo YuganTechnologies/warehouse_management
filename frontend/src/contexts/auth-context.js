@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       });
-
+  
       if (!response.ok) {
         // Log more detailed error information
         console.error(
@@ -90,15 +90,15 @@ export const AuthProvider = ({ children }) => {
         );
         const errorText = await response.text(); // Read the response body if available
         console.error(`Server error response: ${errorText}`);
-
+  
         // Throw an error with more context
         throw new Error(`Error: ${response.statusText} (${response.status})`);
       }
-
+  
       const users = await response.json();
       console.log(users);
       setUserData(users);
-      console.log(userData);
+      console.log(userData); // This might be redundant, make sure setUserData is correctly updating userData
       return users;
     } catch (error) {
       console.error("Fetch users failed:", error);

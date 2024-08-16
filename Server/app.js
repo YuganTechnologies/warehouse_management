@@ -1,28 +1,23 @@
-//External Lib  import
 const express = require("express");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
-const multer = require("multer");
 const path = require("path");
 
 const app = new express();
 
-//Internal Lib Import
-const {
-  DefaultErrorHandler,
-  NotFoundError,
-} = require("./src/helper/ErrorHandler");
+// Internal Lib Import
+const { DefaultErrorHandler, NotFoundError } = require("./src/helper/ErrorHandler");
 
-//Confiqure dotenv
+// Configure dotenv
 dotenv.config({ path: path.join(__dirname, "./.env") });
 
-//Import Database Confiq
+// Import Database Config
 const connectDB = require("./src/confiq/db");
 
-//Import route
+// Import route
 const routes = require("./src/routes");
 
-//Security lib import
+// Security lib import
 const cors = require("cors");
 const hpp = require("hpp");
 const helmet = require("helmet");
@@ -30,7 +25,7 @@ const rateLimit = require("express-rate-limit");
 const expressMongoSanitize = require("express-mongo-sanitize");
 const xssClean = require("xss-clean");
 
-//Security middleware emplement
+// Security middleware implement
 app.use(cors());
 app.use(hpp());
 app.use(
@@ -39,12 +34,12 @@ app.use(
     directives: {
       "img-src": ["'self'", "https: data: blob:"],
     },
-  }),
+  })
 );
 app.use(expressMongoSanitize());
 app.use(xssClean());
 
-//Default middleware emplement
+// Default middleware implement
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
@@ -67,7 +62,7 @@ const DB_OPTIONS = {
   autoIndex: true,
 };
 
-//connection database
+// Connection database
 connectDB(MONGODB_CONNECTION_URL, DB_OPTIONS);
 
 // Routing Implement
@@ -81,10 +76,10 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-//static file
+// Static file
 app.use("/", express.static(path.join(__dirname, "public")));
 
-//Not Found Error Handler
+// Not Found Error Handler
 app.use(NotFoundError);
 
 // Default Error Handler
